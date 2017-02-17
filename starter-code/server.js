@@ -10,7 +10,7 @@ const app = express();
 const conString = 'postgres://localhost:5432';
 // DONE: Using a sentence or two, describe what is happening in Line 12*.
 // Put your response here...
-//A Const is being created called client that holds a new pg.Client with conString as a parameter/argument?
+//A Const is being created called client that holds a new pg method Client with conString as a parameter/argument that will allow communications and data transfer between controller and model. the conString specifie the port over which the exchange will happen.
 const client = new pg.Client(conString);
 client.connect();
 
@@ -33,7 +33,7 @@ app.get('/new', function(request, response) {
 app.get('/articles', function(request, response) {
   // REVIEW: We now have two queries which create separate tables in our DB, and reference the authors in our articles.
   // DONE: What number in the full-stack diagram best matches what is happening in lines 35-42?
-  // Put your response here... 3.
+  // Put your response here... 3; the controller sends a SQL query to the model.
   client.query(`
     CREATE TABLE IF NOT EXISTS
     authors (
@@ -54,10 +54,10 @@ app.get('/articles', function(request, response) {
     );`
   ) // DONE: Referring to lines 45-52, answer the following questions:
     // What is a primary key?
-    // Put your response here... A primary index that it loads first?
+    // Put your response here... A unique identifier for each record in a table.
     // +++++++++++++++++++++
     // What does VARCHAR mean?
-    // Put your response here...VARCHAR puts a length limit on the variable.
+    // Put your response here...VARCHAR is a data type in SQL.
     // +++++++++++++++++++++
   // REVIEW: This query will join the data together from our tables and send it back to the client.
   client.query(`
@@ -72,7 +72,7 @@ app.get('/articles', function(request, response) {
 });
 
 // DONE: How is a 'post' route different than a 'get' route?
-// Put your answer here... Post happens after something else is triggered for a certain mark is reached.
+// Put your answer here... POST routes create new data, GET routes retrieve data
 app.post('/articles', function(request, response) {
   client.query(
     'INSERT INTO authors(author, "authorUrl") VALUES($1, $2) ON CONFLICT DO NOTHING', // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
@@ -85,8 +85,8 @@ app.post('/articles', function(request, response) {
 
   function queryTwo() {
     client.query(
-      // TODO: What is the purpose of the $1 in the following line of code?
-      // Put your response here...
+      // DONE: What is the purpose of the $1 in the following line of code?
+      // Put your response here... It is a placeholder for the authors name.
       `SELECT author_id FROM authors WHERE author=$1`, // DONE: Write a SQL query to retrieve the author_id from the authors table for the new article
       [request.body.author], // DONE: Add the author name as data for the SQL query
       function(err, result) {
@@ -98,7 +98,7 @@ app.post('/articles', function(request, response) {
 
   function queryThree(author_id) {
       // DONE: What number in the full-stack diagram best matches what is happening in line 100?
-      // 4?
+      // 3. The controller is dispatching a Query to the model.
     client.query(
       `INSERT INTO
       articles(author_id, title, category, "publishedOn", body)
@@ -112,7 +112,8 @@ app.post('/articles', function(request, response) {
       ], // DONE: Add the data from our new article, including the author_id, as data for the SQL query.
       function(err) {
         if (err) console.error(err);
-        // TODO: What number in the full-stack diagram best matches what is happening in line 114?
+        // DONE: What number in the full-stack diagram best matches what is happening in line 114?
+        // 5: the controller (server) is sending things back to the view.
         response.send('insert complete');
       }
     );
@@ -133,7 +134,8 @@ app.put('/articles/:id', function(request, response) {
   function queryTwo(author_id) {
     client.query(
       // DONE: In a sentence or two, describe how a SQL 'UPDATE' is different from an 'INSERT', and identify which REST verbs and which CRUD components align with them.
-      // Insert is the C in crud, putting in a value or something for the first time, while update is more akin to the rest of CRUD, madifying a value that already exists to update it to a more recent value.
+      // UPDATE: alters an existing record; REST=PUT/PATCH. CRUD=U.
+      // INSERT: creates a new record; REST=POST. CRUD=C.
       `UPDATE authors
       SET author=$1, "authorUrl"=$2
       WHERE author_id=$3;`, // DONE: Write a SQL query to update an existing author record
@@ -162,19 +164,19 @@ app.put('/articles/:id', function(request, response) {
   }
 });
 
-  // TODO: What number in the full-stack diagram best matches what is happening in line 163?
-  // 4
+  // DONE: What number in the full-stack diagram best matches what is happening in line 163?
+  // 2: a request from the view (and event) is directed to the proper route in the server (the listener invokes the appropriate handler)
 app.delete('/articles/:id', function(request, response) {
-    // TODO: What number in the full-stack diagram best matches what is happening in lines 165?
-    // 4
+    // DONE: What number in the full-stack diagram best matches what is happening in lines 165?
+    // 3: the controller shouting at the Model.
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
     // DONE: What does the value in 'request.params.id' come from? If unsure, look in the Express docs.
-    // Put your response here... it comes from the user/data input
+    // Put your response here... It comes from the ':id:' in the URL of the Ajax request, which in this case was sent out by article.prototype.deleteRecord, and it becomes the $1 that is sent off to teh database above.
     [request.params.id]
   );
   // DONE: What number in the full-stack diagram best matches what is happening in line 171?
-  // 4 I'll be honest, I have no idea. The diagram still confuses me when I actually get in to the code.
+  // 5 it is sending everything back to the view
   response.send('Delete complete');
 });
 
@@ -189,4 +191,4 @@ app.listen(PORT, function() {
   console.log(`Server started on port ${PORT}!`);
 });
 
-// TODO: Make your own drawing of the full-stack diagram on a blank piece of paper (there is a stack of paper on the table next to the door into our classroom) and submit to the TA who grades your lab assignments. This is for just a little extra reinforcement of how everything works.
+// DONE: Make your own drawing of the full-stack diagram on a blank piece of paper (there is a stack of paper on the table next to the door into our classroom) and submit to the TA who grades your lab assignments. This is for just a little extra reinforcement of how everything works.
