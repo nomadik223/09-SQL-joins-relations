@@ -1,15 +1,16 @@
 'use strict';
 
-// TODO: Do not forget to go into your SQL shell and DROP TABLE the existing articles/authors tables. Be sure to start clean.
+// DONE: Do not forget to go into your SQL shell and DROP TABLE the existing articles/authors tables. Be sure to start clean.
 const pg = require('pg');
 const express = require('express');
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
-// TODO: Don't forget to set your own conString if required by your system
+// DONE: Don't forget to set your own conString if required by your system
 const conString = 'postgres://localhost:5432';
-// TODO: Using a sentence or two, describe what is happening in Line 12.
+// DONE: Using a sentence or two, describe what is happening in Line 12*.
 // Put your response here...
+//A Const is being created called client that holds a new pg.Client with conString as a parameter/argument?
 const client = new pg.Client(conString);
 client.connect();
 
@@ -31,8 +32,8 @@ app.get('/new', function(request, response) {
 // TODO: Some of the following questions will refer back to the image called 'full-stack-diagram' that has been added to the lab directory. In that image you will see that the various parts of the application's activity have been numbered 1-5. When prompted in the following questions, identify which number best matches the location of a given process. For instance, the following line of code, where the server is handling a request from the view layer, would match up with #2.
 app.get('/articles', function(request, response) {
   // REVIEW: We now have two queries which create separate tables in our DB, and reference the authors in our articles.
-  // TODO: What number in the full-stack diagram best matches what is happening in lines 35-42?
-  // Put your response here...
+  // DONE: What number in the full-stack diagram best matches what is happening in lines 35-42?
+  // Put your response here... 3.
   client.query(`
     CREATE TABLE IF NOT EXISTS
     authors (
@@ -51,12 +52,12 @@ app.get('/articles', function(request, response) {
       "publishedOn" DATE,
       body TEXT NOT NULL
     );`
-  ) // TODO: Referring to lines 45-52, answer the following questions:
+  ) // DONE: Referring to lines 45-52, answer the following questions:
     // What is a primary key?
-    // Put your response here...
+    // Put your response here... A primary index that it loads first?
     // +++++++++++++++++++++
     // What does VARCHAR mean?
-    // Put your response here...
+    // Put your response here...VARCHAR puts a length limit on the variable.
     // +++++++++++++++++++++
   // REVIEW: This query will join the data together from our tables and send it back to the client.
   client.query(`
@@ -70,8 +71,8 @@ app.get('/articles', function(request, response) {
   );
 });
 
-// TODO: How is a 'post' route different than a 'get' route?
-// Put your answer here...
+// DONE: How is a 'post' route different than a 'get' route?
+// Put your answer here... Post happens after something else is triggered for a certain mark is reached.
 app.post('/articles', function(request, response) {
   client.query(
     'INSERT INTO authors(author, "authorUrl") VALUES($1, $2) ON CONFLICT DO NOTHING', // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
@@ -96,7 +97,8 @@ app.post('/articles', function(request, response) {
   }
 
   function queryThree(author_id) {
-      // TODO: What number in the full-stack diagram best matches what is happening in line 100?
+      // DONE: What number in the full-stack diagram best matches what is happening in line 100?
+      // 4?
     client.query(
       `INSERT INTO
       articles(author_id, title, category, "publishedOn", body)
@@ -130,7 +132,8 @@ app.put('/articles/:id', function(request, response) {
 
   function queryTwo(author_id) {
     client.query(
-      // TODO: In a sentence or two, describe how a SQL 'UPDATE' is different from an 'INSERT', and identify which REST verbs and which CRUD components align with them.
+      // DONE: In a sentence or two, describe how a SQL 'UPDATE' is different from an 'INSERT', and identify which REST verbs and which CRUD components align with them.
+      // Insert is the C in crud, putting in a value or something for the first time, while update is more akin to the rest of CRUD, madifying a value that already exists to update it to a more recent value.
       `UPDATE authors
       SET author=$1, "authorUrl"=$2
       WHERE author_id=$3;`, // DONE: Write a SQL query to update an existing author record
@@ -160,15 +163,18 @@ app.put('/articles/:id', function(request, response) {
 });
 
   // TODO: What number in the full-stack diagram best matches what is happening in line 163?
+  // 4
 app.delete('/articles/:id', function(request, response) {
     // TODO: What number in the full-stack diagram best matches what is happening in lines 165?
+    // 4
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
-    // TODO: What does the value in 'request.params.id' come from? If unsure, look in the Express docs.
-    // Put your response here...
+    // DONE: What does the value in 'request.params.id' come from? If unsure, look in the Express docs.
+    // Put your response here... it comes from the user/data input
     [request.params.id]
   );
-  // TODO: What number in the full-stack diagram best matches what is happening in line 171?
+  // DONE: What number in the full-stack diagram best matches what is happening in line 171?
+  // 4 I'll be honest, I have no idea. The diagram still confuses me when I actually get in to the code.
   response.send('Delete complete');
 });
 
